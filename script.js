@@ -3,6 +3,13 @@ const cartPanel=document.querySelector('.cart');
 const overlay=document.querySelector('.overlay');
 const toast=document.querySelector('.toast');
 let certificateAmount=2000;
+let currentPhoto=0;
+const photos=[
+  {src:'images/collection.png',name:'тарілка «Хвиля»'},
+  {src:'images/hero.png',name:"чашка «М’яка»"},
+  {src:'images/grater.png',name:'тарілка-тертка «Ритуал»'},
+  {src:'images/collection.png',name:'набір «Тиха вечеря»'}
+];
 
 function money(value){return new Intl.NumberFormat('uk-UA').format(value)+' ₴'}
 function notify(text){toast.textContent=text;toast.hidden=false;clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.hidden=true,2300)}
@@ -18,6 +25,8 @@ function renderCart(){
 }
 function openCart(){cartPanel.classList.add('open');overlay.classList.add('visible')}
 function closeCart(){cartPanel.classList.remove('open');overlay.classList.remove('visible')}
+function showPhoto(index){currentPhoto=(index+photos.length)%photos.length;const modal=document.querySelector('.lightbox');const photo=photos[currentPhoto];modal.querySelector('img').src=photo.src;modal.querySelector('img').alt=photo.name;modal.querySelector('p').textContent=photo.name;modal.hidden=false;document.body.style.overflow='hidden'}
+function closePhoto(){document.querySelector('.lightbox').hidden=true;document.body.style.overflow=''}
 
 document.querySelectorAll('[data-product]').forEach(button=>button.addEventListener('click',()=>addItem(button.dataset.product,button.dataset.price)));
 document.querySelector('.cart-btn').addEventListener('click',openCart);
@@ -30,3 +39,9 @@ document.querySelectorAll('[data-amount]').forEach(button=>button.addEventListen
 document.querySelector('.certificate-add').addEventListener('click',()=>addItem('Сертифікат TYKHO',certificateAmount));
 document.querySelector('.newsletter form').addEventListener('submit',event=>{event.preventDefault();event.currentTarget.reset();notify('Готово — повідомимо про нову партію')});
 document.querySelector('.checkout').addEventListener('click',()=>notify('Це демонстраційний кошик портфоліо'));
+document.querySelectorAll('[data-zoom]').forEach(button=>button.addEventListener('click',()=>showPhoto(Number(button.dataset.zoom))));
+document.querySelector('.lightbox-close').addEventListener('click',closePhoto);
+document.querySelector('.lightbox').addEventListener('click',event=>{if(event.target===event.currentTarget)closePhoto()});
+document.querySelector('.lightbox .prev').addEventListener('click',()=>showPhoto(currentPhoto-1));
+document.querySelector('.lightbox .next').addEventListener('click',()=>showPhoto(currentPhoto+1));
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closePhoto();if(!document.querySelector('.lightbox').hidden&&event.key==='ArrowLeft')showPhoto(currentPhoto-1);if(!document.querySelector('.lightbox').hidden&&event.key==='ArrowRight')showPhoto(currentPhoto+1)});
